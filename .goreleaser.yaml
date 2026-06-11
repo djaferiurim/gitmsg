@@ -1,0 +1,109 @@
+# GoReleaser configuration for gitmsg.
+# Docs: https://goreleaser.com
+#
+# Local check:   goreleaser check
+# Dry run build: goreleaser release --snapshot --clean
+#
+# A real release is triggered by pushing a tag (e.g. v0.1.0); see
+# .github/workflows/release.yml.
+version: 2
+
+project_name: gitmsg
+
+before:
+  hooks:
+    - go mod tidy
+
+builds:
+  - id: gitmsg
+    main: .
+    binary: gitmsg
+    env:
+      - CGO_ENABLED=0
+    flags:
+      - -trimpath
+    ldflags:
+      - -s -w -X main.Version={{ .Version }}
+    goos:
+      - linux
+      - darwin
+      - windows
+    goarch:
+      - amd64
+      - arm64
+    ignore:
+      - goos: windows
+        goarch: arm64
+
+archives:
+  - id: gitmsg
+    name_template: >-
+      {{ .ProjectName }}_{{ .Version }}_
+      {{- title .Os }}_
+      {{- if eq .Arch "amd64" }}x86_64
+      {{- else }}{{ .Arch }}{{ end }}
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+    files:
+      - README.md
+      - LICENSE
+
+checksum:
+  name_template: "checksums.txt"
+
+changelog:
+  sort: asc
+  use: github
+  groups:
+    - title: Features
+      regexp: '^.*?feat(\(.+\))??!?:.+$'
+      order: 0
+    - title: Bug Fixes
+      regexp: '^.*?fix(\(.+\))??!?:.+$'
+      order: 1
+    - title: Others
+      order: 999
+  filters:
+    exclude:
+      - "^docs:"
+      - "^test:"
+      - "^chore:"
+      - "^ci:"
+
+# Automatically publish/update the Homebrew formula in a tap repository.
+# Requires a HOMEBREW_TAP_TOKEN secret with write access to the tap repo.
+brews:
+  - name: gitmsg
+    repository:
+      owner: djaferiurim
+      name: homebrew-tap
+      token: "{{ .Env.HOMEBREW_TAP_TOKEN }}"
+    directory: Formula
+    homepage: "https://github.com/djaferiurim/gitmsg"
+    description: "Generate Conventional Commit messages and PR descriptions from your diff"
+    license: "MIT"
+    commit_author:
+      name: goreleaserbot
+      email: bot@goreleaser.com
+    test: |
+      assert_match "gitmsg #{version}", shell_output("#{bin}/gitmsg --version")
+
+# Linux system packages (.deb, .rpm, .apk) for the package managers.
+nfpms:
+  - id: gitmsg
+    package_name: gitmsg
+    vendor: gitmsg
+    homepage: "https://github.com/djaferiurim/gitmsg"
+    maintainer: "djaferiurim <noreply@users.noreply.github.com>"
+    description: "Generate Conventional Commit messages and PR descriptions from your diff"
+    license: "MIT"
+    formats:
+      - deb
+      - rpm
+      - apk
+    bindir: /usr/bin
+
+release:
+  draft: false
+  prerelease: auto

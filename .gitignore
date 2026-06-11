@@ -1,0 +1,17 @@
+# Binaries
+/bin/
+gitmsg
+gitmsg.exe
+*.exe
+
+# GoReleaser output
+/dist/
+
+# Test & coverage output
+*.out
+coverage.*
+
+# Editor / OS noise
+.DS_Store
+.idea/
+.vscode/
