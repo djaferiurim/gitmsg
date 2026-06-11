@@ -33,10 +33,13 @@ Type "cd $(mktemp -d) && git init -q && git config user.email d@d.io && git conf
 Type "mkdir -p internal/auth && printf 'package auth\n' > internal/auth/login.go && printf 'package main\n' > main.go" Enter
 # Clear screen AND scrollback so the setup never appears in the recording.
 Type "printf '\033[2J\033[3J\033[H'" Enter
+# Wait for the clear to actually render BEFORE recording starts at Show.
+# Without this, frame 0 captures the stale setup screen.
+Sleep 1500ms
 Show
 
 # Let the cleared screen be the first captured frame.
-Sleep 1s
+Sleep 800ms
 
 Type "# 1) Stage your work as usual" Sleep 800ms Enter
 Type "git add ." Sleep 400ms Enter
