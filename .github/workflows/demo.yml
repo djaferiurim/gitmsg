@@ -8,6 +8,7 @@ on:
   push:
     paths:
       - demo/demo.tape
+      - scripts/record-demo.sh
       - .github/workflows/demo.yml
 
 permissions:
@@ -34,7 +35,7 @@ jobs:
           go install github.com/charmbracelet/vhs@latest
 
       - name: Record demo
-        run: vhs demo/demo.tape
+        run: bash scripts/record-demo.sh
 
       - name: Commit the updated GIF
         uses: stefanzweifel/git-auto-commit-action@v5

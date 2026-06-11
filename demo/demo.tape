@@ -1,44 +1,27 @@
 # VHS tape for recording the gitmsg demo GIF.
 #
-# Install VHS (https://github.com/charmbracelet/vhs), then run:
-#   vhs demo/demo.tape
-# It produces demo/demo.gif, which the README references.
-#
-# This script builds gitmsg, creates a throwaway repo in a temp dir, and
-# walks through the core commands.
+# All setup (building the binary, creating a throwaway repo, a clean prompt)
+# is done OUTSIDE this tape by the workflow, which configures ~/.bashrc so the
+# shell VHS spawns starts already inside the demo repo with gitmsg on PATH.
+# This avoids VHS's `Hide` directive, which is unreliable in CI. To record
+# locally, run scripts/record-demo.sh (it performs the same setup), not vhs
+# directly.
 
 Output demo/demo.gif
 
 Require git
-Require go
 
 Set Shell "bash"
 Set FontSize 18
 Set Width 1100
 Set Height 640
 Set Padding 20
-Set Margin 16
-Set MarginFill "#1e1e2e"
-Set BorderRadius 10
-Set WindowBar Colorful
 Set Theme "Catppuccin Mocha"
 Set TypingSpeed 45ms
 Set CursorBlink false
 
-# --- Hidden setup: build a local binary and a throwaway repo. ---
-Hide
-Type "export PS1='$ '" Enter
-Type "go build -o /tmp/gitmsg . && export PATH=/tmp:$PATH" Enter
-Type "cd $(mktemp -d) && git init -q && git config user.email d@d.io && git config user.name demo" Enter
-Type "mkdir -p internal/auth && printf 'package auth\n' > internal/auth/login.go && printf 'package main\n' > main.go" Enter
-# Clear screen AND scrollback so the setup never appears in the recording.
-Type "printf '\033[2J\033[3J\033[H'" Enter
-# Wait for the clear to actually render BEFORE recording starts at Show.
-# Without this, frame 0 captures the stale setup screen.
-Sleep 1500ms
-Show
-
-# Let the cleared screen be the first captured frame.
+# The shell already starts in a clean demo repo, so the first frame is a
+# bare prompt. Let it settle, then walk through the core commands.
 Sleep 800ms
 
 Type "# 1) Stage your work as usual" Sleep 800ms Enter
