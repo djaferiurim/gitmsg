@@ -72,9 +72,11 @@ changelog:
       - "^ci:"
 
 # Automatically publish/update the Homebrew formula in a tap repository.
-# Requires a HOMEBREW_TAP_TOKEN secret with write access to the tap repo.
+# Publishing is skipped automatically unless a HOMEBREW_TAP_TOKEN with write
+# access to the tap repo is provided, so releases never fail without it.
 brews:
   - name: gitmsg
+    skip_upload: '{{ if .Env.HOMEBREW_TAP_TOKEN }}false{{ else }}true{{ end }}'
     repository:
       owner: djaferiurim
       name: homebrew-tap
